@@ -1,0 +1,22 @@
+# Blender 5.0.1 MTL File: 'None'
+# www.blender.org
+
+newmtl 10495_Green_Mesh_Tent_Diffuse1
+Ns 10.000005
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd 10495_Green_Mesh_Tent_Diffuse.jpg
+
+newmtl 10495_Green_Mesh_Tent_Diffuse_Opacity1
+Ns 10.000005
+Ka 1.000000 1.000000 1.000000
+Kd 0.113700 0.113700 0.113700
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 0.500000
+illum 1
