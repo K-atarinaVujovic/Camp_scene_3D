@@ -17,7 +17,10 @@ Scene::~Scene() {
 
 void Scene::Init() {
     initShaders();
+    //renderer = new SpriteRenderer(unifiedShader);
 	initObjects();
+    //initTextures();
+    //init2DObjects();
 
     skybox.Init({
         "res/sides.png",
@@ -32,9 +35,13 @@ void Scene::Init() {
 void Scene::initShaders() {
     // unified shader
     unifiedShader.use();
-    unifiedShader.setVec3("uLightPos", 0, 1, 3);
+    //unifiedShader.setVec3("uLightPos", 0, 1, 4);
     unifiedShader.setVec3("uViewPos", 0, 0, 5);
     unifiedShader.setVec3("uLightColor", 1, 1, 1);
+
+    unifiedShader.setVec3("light.ambient", glm::vec3(0.1f));
+    unifiedShader.setVec3("light.diffuse", glm::vec3(0.5f));
+    unifiedShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
 
     // camera
     unifiedShader.setMat4("uP", camera.GetProjectionMatrix());
@@ -52,11 +59,13 @@ void Scene::initObjects() {
     glm::vec3 tentPos = glm::vec3(-3.8f, bottom + bottomOffset, -1.0f);
     glm::vec3 treePos = glm::vec3(4.0f, bottom + bottomOffset, -4.0f);
     glm::vec3 logPos = glm::vec3(0.0f, bottom + bottomOffset, 3.0f);
+    glm::vec3 flamePos = glm::vec3(logPos.x, logPos.y + 0.5f, logPos.z);
 
     glm::vec3 birdSize = glm::vec3(0.4f);
     glm::vec3 tentSize = glm::vec3(0.02f);
     glm::vec3 treeSize = glm::vec3(0.01f);
     glm::vec3 logSize = glm::vec3(0.06f);
+    glm::vec3 flameSize = glm::vec3(0.025f);
 
     // bird
     Model* birdModel = new Model("res/bird.obj");
@@ -70,6 +79,7 @@ void Scene::initObjects() {
     //tent = new SceneObject(tentPos, tentSize, glm::vec3(-90.0f, 0.0f, -60.0f), *tentModel);
     tent = new SceneObject(tentPos, tentSize, glm::vec3(0.0f, -60.0f, 0.0f), *tentModel);
     Objects.push_back(tent);    
+    Obstacles.push_back(tent);
 
     // Tree
     Model* treeModel = new Model("res/tree.obj");
@@ -77,6 +87,7 @@ void Scene::initObjects() {
     //tree = new SceneObject(treePos, treeSize, glm::vec3(-90.0f, 0.0f, 0.0f), *treeModel);
     tree = new SceneObject(treePos, treeSize, glm::vec3(0.0f, 0.0f, 0.0f), * treeModel);
     Objects.push_back(tree);
+    Obstacles.push_back(tree);
 
 
     // Log
@@ -85,6 +96,14 @@ void Scene::initObjects() {
     //log = new SceneObject(logPos, logSize, glm::vec3(-90.0f, 0.0f, 0.0f), *logModel);
     log = new SceneObject(logPos, logSize, glm::vec3(0.0f, 0.0f, 0.0f), *logModel);
     Objects.push_back(log);
+    Obstacles.push_back(log);
+
+
+    // Flame
+    Model* flameModel = new Model("res/flame.obj");
+    Models.push_back(flameModel);
+    flame = new SceneObject(flamePos, flameSize, glm::vec3(0.0f, 0.0f, 0.0f), *flameModel);
+    Objects.push_back(flame);
 
 
 
@@ -99,7 +118,45 @@ void Scene::initObjects() {
 
 void Scene::Update(float dt, bool Keys[]) {
     ProcessInput(dt);
-    bird->Update(dt, Objects, Keys);
+    bird->Update(dt, Obstacles, Keys);
+
+    if (IsFlashing) {
+        FlashTimer += dt;
+        if (FlashTimer >= 0.2f) { // flash every 0.2s
+            FlashTimer = 0.0f;
+            FlashCount++;
+            if (FlashCount >= MaxFlashes) {
+                IsFlashing = false;
+                StormTimer = 0.0f; // start storm delay
+                IsStorming = true;
+            }
+        }
+    }
+    else if (IsStorming) {
+        StormTimer += dt;
+        if (StormTimer >= StormDelay) {
+            // Start rain
+            IsRaining = true;
+        }
+    }
+
+    // Go in tent
+    if (IsRaining && !bird->IsInTent) {
+        if (checkCollision(*bird, *tent)) {
+            bird->IsInTent = true;
+        }
+    }
+
+    if (IsRaining) {
+        //RainParticles->Update(dt, glm::vec2(Width, Height));
+        Obstacles.erase(std::remove(Obstacles.begin(), Obstacles.end(), tent), Obstacles.end());
+        if (flame->Size.y > 0.010f) {
+            flame->Size.y -= FireSquishSpeed * dt;
+            if (flame->Size.y < 0.010f) {
+                flame->Size.y = 0.0f;
+            }
+        }
+    }
 }
 
 void Scene::ProcessInput(float dt) {
@@ -118,6 +175,16 @@ void Scene::ProcessInput(float dt) {
 void Scene::Render() {
     // scene objects
     unifiedShader.use();
+
+    // flash
+    bool flashNow = IsFlashing && (FlashCount % 2 == 1);
+    if (flashNow) {
+        unifiedShader.setVec3("light.ambient", glm::vec3(0.8f));
+    }
+    else {
+        unifiedShader.setVec3("light.ambient", glm::vec3(0.1f));
+    }
+
     for (auto obj : Objects) {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, obj->Position);
@@ -131,9 +198,12 @@ void Scene::Render() {
     }
 
     // bird
-    glm::mat4 model = transformModel(bird->Position, bird->Rotation, bird->Size);
-    unifiedShader.setMat4("uM", model);
-    bird->Draw(unifiedShader);
+    if (!bird->IsInTent) {
+        glm::mat4 model = transformModel(bird->Position, bird->Rotation, bird->Size);
+        unifiedShader.setMat4("uM", model);
+        bird->Draw(unifiedShader);
+    }
+    
 
     // tent
     glm::mat4 model2 = transformModel(tent->Position, tent->Rotation, tent->Size);
@@ -150,8 +220,25 @@ void Scene::Render() {
     unifiedShader.setMat4("uM", model4);
     log->Draw(unifiedShader);
 
+    // flame
+    glm::mat4 model5 = transformModel(flame->Position, flame->Rotation, flame->Size);
+    unifiedShader.setMat4("uM", model5);
+    flame->Draw(unifiedShader);
+
+    // 2D
+    //flame->Draw(*renderer);
+    /*renderer->DrawSprite(
+        flame->Sprite,
+        camera.GetViewMatrix(),
+        camera.GetProjectionMatrix(),
+        flame->Position,
+        flame->Size,
+        flame->Rotation,
+        flame->Color
+    );*/
+
     // skybox
-    glDisable(GL_CULL_FACE);   // optional if only room uses special culling
+    glDisable(GL_CULL_FACE); 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
 
@@ -171,4 +258,72 @@ glm::mat4 Scene::transformModel(glm::vec3 pos, glm::vec3 rotation, glm::vec3 siz
     model = glm::scale(model, size);
 
     return model;
+}
+
+//void Scene::initTextures() {
+//    // flame
+//    ResourceManager::LoadTexture("res/flame1.png", true, "flame1");
+//    ResourceManager::LoadTexture("res/flame2.png", true, "flame2");
+//    ResourceManager::LoadTexture("res/flame3.png", true, "flame3");
+//    ResourceManager::LoadTexture("res/smoke.png", true, "smoke");
+//
+//    // drop
+//    ResourceManager::LoadTexture("res/drop.png", true, "drop");
+//
+//}
+
+//void Scene::init2DObjects() {
+//    // fire
+//    /*std::vector<BasicTexture> flameTextures;
+//    flameTextures.push_back(ResourceManager::GetTexture("flame1"));
+//    flameTextures.push_back(ResourceManager::GetTexture("flame2"));
+//    flameTextures.push_back(ResourceManager::GetTexture("flame3"));
+//    glm::vec2 fireSize = getNormalizedSizeWidth(flameTextures[0], 0.12f);*/
+//    BasicTexture flameTextures = ResourceManager::GetTexture("flame1");
+//    //glm::vec2 fireSize = getNormalizedSizeWidth(flameTextures, 0.12f);
+//    glm::vec2 fireSize = glm::vec2(50.0f);
+//    glm::vec3 firePos = glm::vec3(0.0f, 0.0f, 0.0f);
+//    flame = new Scene2DObject(firePos, fireSize, flameTextures);
+//
+//}
+
+glm::vec2 Scene::getNormalizedSizeWidth(const BasicTexture& tex, float scale)
+{
+    float targetWidth = Width * scale;
+
+    float aspect = (float)tex.TextureHeight / (float)tex.TextureWidth;
+    float targetHeight = targetWidth * aspect;
+
+    return glm::vec2(targetWidth, targetHeight);
+}
+
+glm::vec2 Scene::getNormalizedSizeHeight(const BasicTexture& tex, float scale)
+{
+    float targetHeight = Height * scale;
+
+    float aspect = (float)tex.TextureHeight / (float)tex.TextureWidth;
+    float targetWidth = targetHeight / aspect;
+
+    return glm::vec2(targetWidth, targetHeight);
+}
+
+void Scene::OnMouseClick(int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    {
+        if (!IsStorming && !IsFlashing) {
+            IsFlashing = true;
+            FlashTimer = 0.0f;
+            FlashCount = 0;
+            bird->Jump();
+        }
+    }
+}
+
+bool Scene::checkCollision(SceneObject& one, SceneObject& two) {
+    bool collisionX = one.Position.x + one.Size.x >= two.Position.x && two.Position.x + two.Size.x >= one.Position.x;
+    bool collisionY = one.Position.y + one.Size.y >= two.Position.y && two.Position.y + two.Size.y >= one.Position.y;
+    bool collisionZ = one.Position.z + one.Size.z >= two.Position.z && two.Position.z + two.Size.z >= one.Position.z;
+
+    return collisionX && collisionY && collisionZ;
 }

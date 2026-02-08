@@ -33,7 +33,7 @@ public:
     float legInterval = 0.4f;
     int currentLeg = 0;*/
 
-    BirdObject(glm::vec3 pos, glm::vec3 size, glm::vec3 rotation, Model& model, float velocity = 3.0f);
+    BirdObject(glm::vec3 pos, glm::vec3 size, glm::vec3 rotation, Model& model, float velocity = 9.0f);
     /*glm::vec2 MoveUp(float dt, std::vector<SceneObject*>& obstacles);
     glm::vec2 MoveDown(float dt, std::vector<SceneObject*>& obstacles);
     glm::vec2 MoveLeft(float dt, std::vector<SceneObject*>& obstacles);

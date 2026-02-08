@@ -83,6 +83,17 @@ int main()
     Scene scene(screenWidth, screenHeight, Keys);
     scene.Init();
 
+
+    glfwSetWindowUserPointer(window, &scene);
+
+    // Set GLFW mouse callback
+    glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods)
+        {
+            // Retrieve your scene pointer stored as user pointer
+            Scene* scene = static_cast<Scene*>(glfwGetWindowUserPointer(window));
+            if (scene) scene->OnMouseClick(button, action, mods);
+        });
+
     // model setup
     //Model lija("res/low-poly-fox.obj");
     //Shader unifiedShader("basic.vert", "basic.frag");

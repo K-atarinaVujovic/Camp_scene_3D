@@ -1,0 +1,23 @@
+# Blender 5.0.1 MTL File: 'None'
+# www.blender.org
+
+newmtl 01___12162_Ornament_glass
+Ns 29.999998
+Ka 1.000000 1.000000 1.000000
+Ks 0.540000 0.540000 0.540000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd 12162_Ornament_diff.jpg
+map_Bump -bm 0.100000 12162_Ornament_bump.jpg
+
+newmtl 02___12162_Ornament_metal
+Ns 17.000011
+Ka 1.000000 1.000000 1.000000
+Ks 0.540000 0.540000 0.540000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd 12162_Ornament_diff.jpg

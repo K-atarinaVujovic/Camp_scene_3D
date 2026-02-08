@@ -144,12 +144,16 @@
   <ItemGroup>
     <ClCompile Include="BasicTexture.cpp" />
     <ClCompile Include="BirdObject.cpp" />
+    <ClCompile Include="FireObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Scene2DObject.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="shader.hpp" />
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="SpriteRenderer.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -163,12 +167,16 @@
     <ClInclude Include="BasicTexture.h" />
     <ClInclude Include="BirdObject.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="FireObject.h" />
     <ClInclude Include="mesh.hpp" />
     <ClInclude Include="model.h" />
     <ClInclude Include="model.hpp" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Scene2DObject.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="Skybox.h" />
+    <ClInclude Include="SpriteRenderer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="texture.hpp" />
   </ItemGroup>

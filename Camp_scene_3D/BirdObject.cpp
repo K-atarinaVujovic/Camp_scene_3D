@@ -1,9 +1,9 @@
 #include "BirdObject.h"
 
 float JumpVelocity = 0.0f;
-float Gravity = -15.0f;
+float Gravity = -80.0f;
 float GroundY = 0.0f;
-float JumpStrength = 5.0f;
+float JumpStrength = 20.0f;
 
 float blinkTimer = 0.0f;
 float blinkDuration = 0.08f;

@@ -15,6 +15,9 @@
 #include "BirdObject.h"
 #include "Texture.h"
 #include "Skybox.h"
+#include "ResourceManager.h"
+#include "Scene2DObject.h"
+#include "SpriteRenderer.h"
 
 enum SceneState {
 };
@@ -33,7 +36,7 @@ public:
     float StormTimer = 0.0f;
 
     const float FireSquishFactor = 0.0f;
-    const float FireSquishSpeed = 25.0f;
+    const float FireSquishSpeed = 0.01f;
 
     const float cameraSpeed = 5.0f;
 
@@ -51,6 +54,8 @@ public:
     void ProcessInput(float dt);
     void Update(float dt, bool Keys[]);
     void Render();
+    void OnMouseClick(int button, int action, int mods);
+
     /*std::vector<SceneObject*> Obstacles;
     bool* Keys;
     unsigned int Width, Height;
@@ -72,13 +77,26 @@ private:
     SceneObject* tent;
     SceneObject* tree;
     SceneObject* log;
+    SceneObject* flame;
+
+    //2D
+   /* Scene2DObject* flame;
+    SpriteRenderer* renderer;*/
 
     vector<SceneObject*> Objects;
+    vector<SceneObject*> Obstacles;
     vector<Model*> Models; // just to delete dangling pointers
 
     glm::mat4 transformModel(glm::vec3 pos, glm::vec3 rotation, glm::vec3 size);
     void initShaders();
     void initObjects();
+    /*void initTextures();
+    void init2DObjects();*/
+    glm::vec2 getNormalizedSizeWidth(const BasicTexture& tex, float scale);
+    glm::vec2 getNormalizedSizeHeight(const BasicTexture& tex, float scale);
+    bool checkCollision(SceneObject& bird, SceneObject& so);
+
+
     /*void initShaders();
     void initTextures();
     void initObjects();
