@@ -129,6 +129,8 @@ int main()
     glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window))
     {
+        double initFrameTime = glfwGetTime();
+
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
 
@@ -152,6 +154,8 @@ int main()
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        while (glfwGetTime() - initFrameTime < 1 / 75.0) {}
     }
 
     glfwTerminate();

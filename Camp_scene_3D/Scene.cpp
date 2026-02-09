@@ -21,6 +21,8 @@ void Scene::Init() {
 	initObjects();
     //initTextures();
     //init2DObjects();
+    Model drop = Model("res/drop.obj");
+    rainGenerator = new RainGenerator(unifiedShader, drop, 200);
 
     skybox.Init({
         "res/sides.png",
@@ -31,6 +33,7 @@ void Scene::Init() {
         "res/sides.png"
         });
 }
+
 
 void Scene::initShaders() {
     // unified shader
@@ -60,6 +63,7 @@ void Scene::initObjects() {
     glm::vec3 treePos = glm::vec3(4.0f, bottom + bottomOffset, -4.0f);
     glm::vec3 logPos = glm::vec3(0.0f, bottom + bottomOffset, 3.0f);
     glm::vec3 flamePos = glm::vec3(logPos.x, logPos.y + 0.5f, logPos.z);
+    glm::vec3 brellaPos = birdPos + brellaOffset;
 
     glm::vec3 birdSize = glm::vec3(0.4f);
     glm::vec3 tentSize = glm::vec3(0.02f);
@@ -72,6 +76,11 @@ void Scene::initObjects() {
     Models.push_back(birdModel);
     //bird = new BirdObject(birdPos, birdSize, glm::vec3(-90.0f, 0.0f, 0.0f), *birdModel);
     bird = new BirdObject(birdPos, birdSize, glm::vec3(0.0f, 0.0f, 0.0f), *birdModel);
+
+    // brella
+    Model* brellaModel = new Model("res/brella.obj");
+    Models.push_back(brellaModel);
+    brella = new SceneObject(brellaPos, brellaSize, glm::vec3(0.0f), *brellaModel);
 
     // Tent
     Model* tentModel = new Model("res/tent.obj");
@@ -119,6 +128,7 @@ void Scene::initObjects() {
 void Scene::Update(float dt, bool Keys[]) {
     ProcessInput(dt);
     bird->Update(dt, Obstacles, Keys);
+    brella->Position = bird->Position + brellaOffset;
 
     if (IsFlashing) {
         FlashTimer += dt;
@@ -148,7 +158,7 @@ void Scene::Update(float dt, bool Keys[]) {
     }
 
     if (IsRaining) {
-        //RainParticles->Update(dt, glm::vec2(Width, Height));
+        rainGenerator->Update(dt, glm::vec3(8.0f, 4.0f, 8.0f));
         Obstacles.erase(std::remove(Obstacles.begin(), Obstacles.end(), tent), Obstacles.end());
         if (flame->Size.y > 0.010f) {
             flame->Size.y -= FireSquishSpeed * dt;
@@ -224,6 +234,17 @@ void Scene::Render() {
     glm::mat4 model5 = transformModel(flame->Position, flame->Rotation, flame->Size);
     unifiedShader.setMat4("uM", model5);
     flame->Draw(unifiedShader);
+
+    
+
+    // rain
+    if (IsRaining) {
+        rainGenerator->Draw();
+        glm::mat4 model6 = transformModel(brella->Position, brella->Rotation, brella->Size);
+        unifiedShader.setMat4("uM", model6);
+        brella->Draw(unifiedShader);
+    }
+        
 
     // 2D
     //flame->Draw(*renderer);

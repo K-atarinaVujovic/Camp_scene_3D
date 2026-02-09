@@ -18,6 +18,7 @@
 #include "ResourceManager.h"
 #include "Scene2DObject.h"
 #include "SpriteRenderer.h"
+#include "RainGenerator.h"
 
 enum SceneState {
 };
@@ -44,6 +45,10 @@ public:
     unsigned int Width, Height;
 
     float bottom = -4.0f;
+
+    glm::vec3 brellaOffset = glm::vec3(0.0f, 1.05f, 0.0f);
+    glm::vec3 brellaSize = glm::vec3(0.01f);
+
 
 
     Scene(unsigned int width, unsigned int height, bool keys[]);
@@ -78,6 +83,7 @@ private:
     SceneObject* tree;
     SceneObject* log;
     SceneObject* flame;
+    SceneObject* brella;
 
     //2D
    /* Scene2DObject* flame;
@@ -86,6 +92,8 @@ private:
     vector<SceneObject*> Objects;
     vector<SceneObject*> Obstacles;
     vector<Model*> Models; // just to delete dangling pointers
+    
+    RainGenerator* rainGenerator;
 
     glm::mat4 transformModel(glm::vec3 pos, glm::vec3 rotation, glm::vec3 size);
     void initShaders();

@@ -147,6 +147,8 @@
     <ClCompile Include="FireObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
+    <ClCompile Include="ParticleGenerator.cpp" />
+    <ClCompile Include="RainGenerator.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scene2DObject.cpp" />
@@ -171,6 +173,8 @@
     <ClInclude Include="mesh.hpp" />
     <ClInclude Include="model.h" />
     <ClInclude Include="model.hpp" />
+    <ClInclude Include="ParticleGenerator.h" />
+    <ClInclude Include="RainGenerator.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Scene2DObject.h" />
